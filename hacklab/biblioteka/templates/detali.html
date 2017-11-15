@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Библиотека | Детали за {{ kniga.title }}{% endblock %}
+{% block extrahead %}
+{% endblock %}
+
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block content %}
+<div class="main">
+    <img class="main" src="{% if kniga.image %}{{ kniga.image.url }}{% else %}{{ kniga.external_image_url }}{% endif %}" />
+   <div class="book_details">
+      <p><b>ISBN</b> {{ kniga.ISBN }}</p>
+      <p><b>Автор{% ifnotequal kniga.authors.count 1 %}и{% endifnotequal %}</b>
+      {% for a in kniga.authors.all %}
+      <a href="{% url hacklab.biblioteka.views.by_author a.id %}">{{ a.name }}</a>
+      {% if not forloop.last %}, {% endif %}
+      {% endfor %}
+      </p>
+      <p><b>Издавач</b> <a href="{% url hacklab.biblioteka.views.by_publisher kniga.publisher.id %}" title="година на издавање">{{ kniga.publisher }}</a></p>
+      <p><b>Година</b> <a href="{% url hacklab.biblioteka.views.by_year kniga.release_year %}" title="година на издавање">{{ kniga.release_year }}</a></p>
+      <p><b>Краток опис</b>{{ kniga.description }}</p>
+        {% if tags %}<p><b>Тагови</b> {% for t in tags %}<a href="{% url hacklab.biblioteka.views.by_tag t %}">{{ t }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+      <p><b>Преостанати копии</b> {{ kniga.in_stock }}</p>
+
+      {% if perms.biblioteka.can_add_rental %}
+        <div>
+            <b>Изнајмувања</b>
+            <b>
+            {% if rentals %}
+                {% for r in rentals %}
+                {{ r }}
+                {% endfor %}
+            {% else %}
+            Книгата не е изнајмена од никого
+            {% endif %}
+            </b>
+
+            {% ifnotequal kniga.in_stock 0 %}
+            <form action="{% url hacklab.biblioteka.views.rent_book kniga.id %}" method="post">{% csrf_token %}
+                <input type="submit" name="submit_rent" value="Изнајми ја книгата" />
+            </form>
+            {% endifnotequal %}
+
+            {% ifnotequal kniga.in_stock kniga.quantity %}
+            <form action="{% url hacklab.biblioteka.views.return_book kniga.id %}" method="post">{% csrf_token %}
+                <input type="submit" name="submit_rent" value="Врати ја книгата" />
+            </form>
+            {% endifnotequal %}
+        </div>
+        {% endif %}
+
+      <form method="post" action="{% url hacklab.biblioteka.views.reserve_book %}">{% csrf_token %}
+         <input type="hidden" name="kniga" value="{{ kniga.id }}" />
+            <p>
+                <b>Резервации</b>
+                <b>
+                {% for r in kniga.reservation_set.all %}
+                {{ r }}<br />
+                {% endfor %}
+                </b>
+                <input type="submit" name="submit_reservation" value="Резервирај ја книгата" />
+            </p>
+      </form>
+
+   </div>
+    <br />
+</div>
+{% endblock %}

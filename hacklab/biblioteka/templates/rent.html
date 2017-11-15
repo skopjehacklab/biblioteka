@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Изнајмување на книга{% endblock %}
+{% block extrahead %}
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.js"></script>
+{% endblock %}
+
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block content %}
+<div class="form">
+    <form action="." method="post">
+        {% csrf_token %}
+        <div class="form_field">
+            <label for="name_filter">Пребарај</label>
+            <input type="text" name="name_filter" id="name_filter" autocomplete="off" />
+            <p>Внесете го корисничкото име, името, или презимето на корисникот</p>
+        </div>
+        <div id="userlist">
+            {% ifnotequal book.reservation_set.count 0 %}
+            {% for res in book.reservation_set.all_ordered %}
+            <div>
+                <input type='radio' id='r_{{ res.reserved_by.username }}' name='user' value="{{ res.reserved_by.id }}" checked="checked" />
+                <label for='r_{{ res.reserved_by.username }}'>{{ res.reserved_by.username }} {{ res.reserved_by.first_name }} {{ res.reserved_by.last_name }} - {{ res.reserved_on }}</label>
+            </div>
+            {% endfor %}
+            {% endifnotequal %}
+        </div>
+        <p><input type="submit" class="button" name="submit_rent" value="Изнајми ја книгата" /> &nbsp;&nbsp;&nbsp;
+        <a href="{% url 'biblioteka_index' %}" class="button">Откажи</a>
+    </form>
+</div>
+<script type="text/javascript">
+    $.ajaxSetup({
+        beforeSend: function(xhr,  settings) {
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0,  name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                // Only send the token to relative URLs i.e. locally.
+                xhr.setRequestHeader("X-CSRFToken",  getCookie('csrftoken'));
+            }
+        }
+    });
+    var done = function(res, status) {
+        if(status == "success") {
+            $("#userlist").empty();
+            var jsonObjs = JSON.parse(res.responseText);
+            for(var i=0; i < jsonObjs.length; i++) {
+                var obj = jsonObjs[i];
+                var u = obj.fields.username;
+                var newRadio = "<div><input type='radio' id='r_"+ u +"' name='user' value='" + obj.pk + "' />" +
+                    "<label for='r_" + u + "'>" + u + " " + obj.fields.first_name + " " +
+                    obj.fields.last_name + "</label></div>";
+                $("#userlist").prepend(newRadio);
+            }
+        }
+    };
+    var update_list = function(input_text) {
+        var request_args = {type:"POST", url:"{% url biblioteka_index %}update/", dataType:"json", data:{"name":input_text}, complete:done};
+        $.ajax(request_args);
+    };
+    $("#name_filter").keyup(function(e) {
+            if((e.keyCode > 65 || e.keyCode == 8) && $("#name_filter").val() != "") {
+            update_list($(this).val());
+            }
+            else if ($("#name_filter").val() == "") {
+            $("#userlist").empty();
+            }
+        });
+</script>
+{% endblock %}

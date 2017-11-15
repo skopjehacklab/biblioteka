@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Библиотека | Сите книги{% endblock %}
+{% block extrahead %}
+{% endblock %}
+
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div class="link_bar">
+        <h3>Филтри</h3>
+        <form action="{% url biblioteka_index %}results/" method="post">{% csrf_token %}
+            <label for="isbn">ISBN</label>
+            <input type="text" id="isbn" name="ISBN" />
+            <label for="title">Наслов</label>
+            <input type="text" id="title" name="title" />
+            <label for="author">Автор</label>
+            <input type="text" id="author" name="author" />
+            <label for="publisher">Издавач</label>
+            <input type="text" id="publisher" name="publisher" />
+            <label for="year">Година</label>
+            <input type="text" id="year" name="year" />
+            <input type="submit" name="submit" value="Филтрирај" />
+        </form>
+    </div>
+    <div class="lista">
+        <p class="info">Затемнетите книги напишани со <i>italic</i> се изнајмени и нема преостанати копии.</p>
+        <table>
+            <thead>
+                <tr><th>Слика</th><th>ISBN</th><th>Податоци</th><th>Резервирај</th>{% if perms.can_add_rental %}<th>Изнајми</th>{% endif %}</tr>
+            </thead>
+            <tbody id="booklistbody">
+                {% for kniga in knigi.object_list %}
+                <tr {% ifequal kniga.in_stock 0 %}class="i"{% endifequal %}>
+                    <td><img src="{% if kniga.image %}{{ kniga.image.url }}{% else %}{{ kniga.external_image_url }}{% endif %}" height="50" /></td>
+                    <td>{{ kniga.ISBN }}</td>
+                    <td class="title">
+                        <a href="{{ kniga.get_absolute_url }}" title="детали за книгата" class="title">{{ kniga.title }}</a>
+                        од
+                        {% for author in kniga.authors.all %}
+                        <a href="{% url hacklab.biblioteka.views.by_author author.id %}" title="класа">{{ author }}</a>
+                        {% endfor %}
+                        -
+                        <a href="{% url hacklab.biblioteka.views.by_publisher kniga.publisher.id %}" title="година на издавање">{{ kniga.publisher }}</a>
+                        ,
+                        <a href="{% url hacklab.biblioteka.views.by_year kniga.release_year %}" title="година на издавање">{{ kniga.release_year }}</a>
+                    </td>
+                    <td class="ca">
+                        <form method="post" action="{% url hacklab.biblioteka.views.reserve_book %}">{% csrf_token %}
+                            <input type="hidden" name="kniga_id" value="{{ kniga.id }}" />
+                            <input type="image" name="kniga" value="{{ kniga.id }}" src="{{ MEDIA_URL }}img/res.png" />
+                        </form>
+                        <!-- endif -->
+                    </td>
+                    {% if perms.can_add_rental %}
+                    <td class="ca">
+                        {% ifequal kniga.in_stock 0 %}
+                        <img src="{{ MEDIA_URL }}img/nok.png" alt="Нема преостанати копии во библиотеката">
+                        {% else %}
+                        <a href="{% url hacklab.biblioteka.views.rent_book kniga.id %}"><img value="{{ kniga.id }}" src="{{ MEDIA_URL }}img/ok.png" /></a>
+                        {% endifequal %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="clear"></div>
+    {% ifnotequal knigi.paginator.num_pages 1 %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if knigi.has_previous %}
+            <a href="?p={{ knigi.previous_page_number }}">претходна</a>
+            {% endif %}
+            <b>Страна {{ knigi.number }} од {{ knigi.paginator.num_pages }}.</b>
+            {% if knigi.has_next %}
+            <a href="?p={{ knigi.next_page_number }}">следна</a>
+            {% endif %}
+        </span>
+        <div class="clear"></div>
+    </div>
+    {% endifnotequal %}
+</div>
+{% endblock %}

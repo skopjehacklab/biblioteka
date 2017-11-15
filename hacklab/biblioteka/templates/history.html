@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Библиотека | Сите книги{% endblock %}
+{% block extrahead %}
+{% endblock %}
+
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div class="link_bar">
+        <h3>Филтри</h3>
+        <form action="." method="post">{% csrf_token %}
+            <span>ISBN</span>
+            <input type="text" name="ISBN" />
+        </form>
+        {% if dates %}
+        <h3>Архива по месеци</h3>
+        {% for link in dates %}
+        <a href="/{{ path }}/{{ link.year }}/{{ link.month }}/">{{ link|date:"N" }} {{ link.year }}</a>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="lista history">
+        <table>
+            <thead>
+                <tr><th>Слика</th><th>Податоци</th><th>Изнајмена од</th><th>Изнајмена на</th><th>Вратена на</th></tr>
+            </thead>
+            <tbody>
+                {% for item in list %}
+                <tr {% ifequal item.book.in_stock 0 %}class="i"{% endifequal %}
+                    {% if item.returned_on %}class="returned"{% else %}class="rented"{% endif %}
+                    >
+                    <td><img src="{% if item.book.image %}{{ item.book.image.url }}{% else %}{{ kniga.external_image_url }}{% endif %}" height="50" /></td>
+                    <td class="title">
+                        {{ item.book.ISBN }}
+                        <a href="{{ item.book.get_absolute_url }}" title="детали за книгата" class="title">{{ item.book.title }}</a>
+                        од
+                        {% for author in item.book.authors.all %}
+                        <a href="{% url hacklab.biblioteka.views.by_author author.id %}" title="класа">{{ author }}</a>
+                        {% endfor %}
+                        -
+                        <a href="{% url hacklab.biblioteka.views.by_publisher item.book.publisher.id %}" title="година на издавање">{{ item.book.publisher }}</a>
+                        ,
+                        <a href="{% url hacklab.biblioteka.views.by_year item.book.release_year %}" title="година на издавање">{{ item.book.release_year }}</a>
+                    </td>
+                    <td class="ca">
+                        {{ item.rented_by.get_full_name }}
+                    </td>
+                    <td class="ca">
+                        <b>{{ item.rented_on|date:"d N Y" }}</b>
+                        во
+                        <b>{{ item.rented_on|date:"H:m" }}h</b>
+                    </td>
+                    <td class="ca">
+                        <b>{{ item.returned_on|date:"d N Y" }}</b>
+                        во
+                        <b>{{ item.returned_on|date:"H:m" }}h</b>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="clear"></div>
+</div>
+{% endblock %}
