@@ -8,7 +8,7 @@
 
 
 {% if user.is_authenticated %}
-<p>Веќе сте најавени како {{ user.username }}. Одјавете се <a href="{% url django.contrib.auth.views.logout %}">овде</a></p>
+<p>Веќе сте најавени како {{ user.username }}. Одјавете се <a href="{% url 'django.contrib.auth.views.logout' %}">овде</a></p>
 {% else %}
 {% if message %}
 <h3>{{ message }}</h3>
@@ -29,8 +29,8 @@
             {{ form.password }}
         </div>
         <p><input class="button" type="submit" value="Најавете се" /></p>
-        <p class="link">Доколку сте ја заборавиле лозинката, <a href="{% url reset_password %}">кликнете овде.</a></p>
-        <p class="link">Доколку немате кориснички профил, <a href="{% url hacklab.registration.views.register %}">регистрирајте се овде.</a></p>
+        <p class="link">Доколку сте ја заборавиле лозинката, <a href="{% url 'reset_password' %}">кликнете овде.</a></p>
+        <p class="link">Доколку немате кориснички профил, <a href="{% url 'hacklab.registration.views.register' %}">регистрирајте се овде.</a></p>
     </form>
 </div>
 
