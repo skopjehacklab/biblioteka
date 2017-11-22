@@ -27,18 +27,20 @@ def update_user_list(request):
     else:
         return HttpResponse("NOK")
 
-def get_objects_by_page(request, books):
-    paginator = Paginator(books, 15)
+
+def get_paginated_objects(request, objects):
+    paginator = Paginator(objects, 15)
     try:
         page = int(request.GET.get("p", "1"))
     except:
         page = 1
 
     try:
-        books = paginator.page(page)
+        objects = paginator.page(page)
     except (EmptyPage, InvalidPage):
-        books = paginator.page(paginator.num_pages)
-    return books
+        objects = paginator.page(paginator.num_pages)
+    return objects
+
 
 def filter_books(request):
     books = Book.objects.all()
@@ -66,14 +68,15 @@ def index(request):
     Metod za listanje na site knigi
     """
     if request.method == 'POST':
-        books = filter_books(request)
-        return render(request, 'list.html',
-                {'knigi':books, 'heading':'Листа на сите книги во ХакЛаб КИКА'})
+        books = get_paginated_objects(request, filter_books(request))
     else:
-        books = Book.objects.all()
-        books = get_objects_by_page(request, books)
-        return render(request, 'list_pages.html',
-                {'knigi':books, 'heading':'Листа на сите книги во ХакЛаб КИКА'})
+        books = get_paginated_objects(request, Book.objects.all())
+
+    data = {
+        'knigi': books,
+        'heading': 'Листа на сите книги во ХакЛаб КИКА'
+    }
+    return render(request, 'list_pages.html', data)
 
 
 def view_book_details(request, k_id, k_slug):
@@ -94,7 +97,7 @@ def by_year(request, godina):
     Metod za listanje na site knigi od godina
     """
     books = Book.objects.filter(release_year=godina)
-    books = get_objects_by_page(request, books)
+    books = get_paginated_objects(request, books)
     return render(request, 'list_pages.html',
             {'knigi':books, 'heading':'Листа на сите книги од ' + str(godina) +' година'})
 
@@ -104,7 +107,7 @@ def by_tag(request, tag):
     Metod za listanje na site knigi spored odbran tag
     """
     books = Book.objects.filter(tags__contains=tag)
-    books = get_objects_by_page(request, books)
+    books = get_paginated_objects(request, books)
     return render(request, 'list_pages.html',
             {'knigi':books, 'heading':u'Листа на сите книги со клучен збор \"'+tag+'\"'})
 
@@ -114,7 +117,7 @@ def by_author(request, a_id):
     Metod za listanje na site knigi od avtor
     """
     author = get_object_or_404(Author, pk=a_id)
-    books = get_objects_by_page(request, author.book_set.all())
+    books = get_paginated_objects(request, author.book_set.all())
     return render(request, 'list_pages.html',
             {'knigi':books, 'heading':u'Листа на сите книги од \"'+author.name+'\"'})
 
@@ -124,7 +127,7 @@ def by_publisher(request, p_id):
     Metod za listanje na site knigi od izdavac
     """
     publisher = get_object_or_404(Publisher, pk=p_id)
-    books = get_objects_by_page(request, publisher.book_set.all())
+    books = get_paginated_objects(request, publisher.book_set.all())
     return render(request, 'list_pages.html',
             {'knigi':books, 'heading':u'Листа на сите книги од \"'+publisher.name+'\"'})
 

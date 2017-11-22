@@ -17,22 +17,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from hacklab.biblioteka import urls as biblioteka_urls
-from hacklab.registration import account_urls
-from hacklab.registration import registration_urls
 
+from hacklab.registration.urls import urlpatterns as reg_urls
+from hacklab.biblioteka.urls import urlpatterns as bib_urls
 
-account_patterns = (account_urls, 'accounts')
-registration_patterns = (registration_urls, 'registration')
-registration_patterns = (biblioteka_urls, 'biblioteka')
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html')),
 
-    path('registration/', include(registration_patterns)),
-    path('account/', include(account_patterns)),
-
-    path('biblioteka/', include('hacklab.biblioteka.urls')),
+    path('accounts/', include((reg_urls, 'registration',))),
+    path('biblioteka/', include((bib_urls, 'biblioteka',))),
 
 
     path('admin/', admin.site.urls),
