@@ -52,16 +52,16 @@
                         <b>{{ res.reserved_on|date:"H:m" }}h</b>
                     </td>
                     <td class="ca">
-                        <form method="post" action="{% url 'biblioteka_index' %}reservations/remove/">{% csrf_token %}
+                        <form method="post" action="{% url 'biblioteka:index' %}reservations/remove/">{% csrf_token %}
                             <input type="hidden" name="reservation_id" id="reservation_id" value="{{ res.id }}" />
-                            <input type="image" name="reservation" id="reservation" value="" src="{{ MEDIA_URL }}img/delete.png" />
+                            <input type="image" name="reservation" id="reservation" value="" src="{% static "img/delete.png" %} />
                         </form>
                     </td>
 
                     <td class="ca">
                         {% if perms.can_add_rental %}
                         {% ifequal res.book.in_stock 0 %}
-                        <img src="{{ MEDIA_URL }}img/nok.png" alt="Нема преостанати копии во библиотеката">
+                        <img src="{% static "img/nok.png" %} alt="Нема преостанати копии во библиотеката">
                         {% else %}
                         <form action="{% url hacklab.biblioteka.views.rent_book res.book.id %}" method="get">{% csrf_token %}
                             <input type="image" name="kniga" value="{{ res.id }}" src="{{ MEDIA_URL }}img/ok.png" />

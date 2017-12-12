@@ -7,16 +7,20 @@ from hacklab.biblioteka.views import reserved_books, reserve_book
 from hacklab.biblioteka.views import remove_reservation, update_user_list
 from hacklab.biblioteka.views import view_book_details, return_book
 
+
+app_name = 'biblioteka'
+
+
 urlpatterns = [
         path('', index, name='index'),
         path('results/', index, name='results'),
-        path('year/(?P<godina>\d+)/$', by_year, name='by_year'),
+        path('year/godina<int:number>)/', by_year, name='by_year'),
         path('author/a_id<int:number>/', by_author, name='by_author'),
         path('publisher/p_id<int:number>)/', by_publisher,
              name='by_publisher'),
         path('rent/k_id<int:number>)/', rent_book, name='rent'),
         path('rented_books/', history, name='list-rented'),
-        path('history/$', my_history, name='my-history'),
+        path('history/', my_history, name='my-history'),
         path('reservations/', reserved_books, name='reservations'),
         path('reservations/make/', reserve_book, name='make-reservation'),
         path('reservations/remove/', remove_reservation,

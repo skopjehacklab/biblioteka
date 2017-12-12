@@ -2,13 +2,13 @@
 
 {% block title %}Библиотека{% endblock %}
 
-{% block app_heading %}<h1 class='qlassik'><a href="{% url 'biblioteka_index' %}">БИБЛИОТЕКА</a></h1>{% endblock %}
+{% block app_heading %}<h1 class='qlassik'><a href="{% url 'biblioteka:index' %}">БИБЛИОТЕКА</a></h1>{% endblock %}
 
 
 {% block main_content %}
 {% if user.is_authenticated %}
 <div class="submenu">
-    <a href="{% url 'biblioteka_index' %}">Почеток</a>
+    <a href="{% url 'biblioteka:index' %}">Почеток</a>
     <a href="{% url hacklab.biblioteka.views.reserved_books 'p' %}">Мои резервирани книги</a>
     <a href="{% url hacklab.biblioteka.views.my_history %}">Мои изнајмени книги</a>
     {% if perms.biblioteka.can_add_rental %}

@@ -10,7 +10,7 @@
 <div class="main">
     <div class="link_bar">
         <h3>Филтри</h3>
-        <form action="{% url biblioteka_index %}results/" method="post">{% csrf_token %}
+        <form action="{% url 'biblioteka:index' %}results/" method="post">{% csrf_token %}
             <label for="isbn">ISBN</label>
             <input type="text" id="isbn" name="ISBN" />
             <label for="title">Наслов</label>
