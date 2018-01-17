@@ -79,7 +79,7 @@ def index(request):
     return render(request, 'list_pages.html', data)
 
 
-def view_book_details(request, k_id, k_slug):
+def view_book_details(request, k_id, _):
     """
     Metod za gledanje na detali na odredena kniga
     """

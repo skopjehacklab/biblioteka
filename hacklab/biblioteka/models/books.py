@@ -1,12 +1,11 @@
-#!/usr/bin/python
-# -*- coding=utf-8 -*-
+import os
+from datetime import datetime
 
 from django.db import models
-from django.contrib.auth.models import User
 from django.conf import settings
-from datetime import datetime
+from django.contrib.auth.models import User
 from django.core.files import File
-import os
+from django.urls import reverse
 
 
 class Language(models.Model):
@@ -15,9 +14,6 @@ class Language(models.Model):
 
 	class Meta:
 		db_table = 'biblioteka_language'
-
-	def __unicode__(self):
-		return self.iso_name
 
 	def __str__(self):
 		return "Јазик: {}".format(self.name)
@@ -29,9 +25,6 @@ class Author(models.Model):
 
 	class Meta:
 		db_table = 'biblioteka_author'
-
-	def __unicode__(self):
-		return self.name
 
 	def __str__(self):
 		return "Автор: {}".format(self.name)
@@ -45,9 +38,6 @@ class Publisher(models.Model):
 
 	class Meta:
 		db_table = 'biblioteka_publisher'
-
-	def __unicode__(self):
-		return self.name
 
 
 class Book(models.Model):
@@ -93,8 +83,8 @@ class Book(models.Model):
 		return self.title
 
 	def get_absolute_url(self):
-		from django.core.urlresolvers import reverse
-		return "%sbook/%d/%s/" % (reverse('biblioteka_index'), self.id, self.slug)
+		return reverse('biblioteka:book_details',
+                               args=[self.id, self.slug])
 
 	def __str__(self):
 		return "Книга: {}".format(self.title)
