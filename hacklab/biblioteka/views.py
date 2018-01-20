@@ -15,18 +15,16 @@ from hacklab.biblioteka.models import Author, Book, Rental, Publisher
 from hacklab.biblioteka.models import Reservation, ReservationExists
 from hacklab.biblioteka.models import RentalExists
 
-
-def update_user_list(request):
-    if request.method == 'POST':
+def update_user_list(View):
+    def post(self,request):
         a = User.objects.filter(
                 Q(username__startswith=request.POST['name']) |
                 Q(first_name__startswith=request.POST['name']) |
                 Q(last_name__startswith=request.POST['name']) |
                 Q(email__startswith=request.POST['name']))
         return HttpResponse(serializers.serialize("json", a))
-    else:
+    def get(self,request):
         return HttpResponse("NOK")
-
 
 def get_paginated_objects(request, objects):
     paginator = Paginator(objects, 15)
