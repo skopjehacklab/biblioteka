@@ -90,15 +90,15 @@ def view_book_details(request, k_id, _):
             {'kniga':book, 'heading':heading, 'tags':tags, 'rentals':rentals})
 
 
-def by_year(request, godina):
+def by_year(View, godina):
     """
     Metod za listanje na site knigi od godina
     """
-    books = Book.objects.filter(release_year=godina)
-    books = get_paginated_objects(request, books)
-    return render(request, 'list_pages.html',
-            {'knigi':books, 'heading':'Листа на сите книги од ' + str(godina) +' година'})
-
+    def get(request,self):
+        books = Book.objects.filter(release_year=godina)
+        books = get_paginated_objects(request, books)
+        return render(request, 'list_pages.html',
+                {'knigi':books, 'heading':'Листа на сите книги од ' + str(godina) +' година'})
 
 def by_tag(request, tag):
     """
