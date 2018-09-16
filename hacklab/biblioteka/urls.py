@@ -1,18 +1,24 @@
 from django.urls import path, re_path
 from django.views.decorators.csrf import csrf_protect
 
-from hacklab.biblioteka.views import index, by_year, by_author, by_publisher
-from hacklab.biblioteka.views import by_tag, rent_book, history, my_history
-from hacklab.biblioteka.views import reserved_books, reserve_book
-from hacklab.biblioteka.views import remove_reservation, update_user_list
-from hacklab.biblioteka.views import view_book_details, return_book
+from hacklab.biblioteka.views_old import (
+    index, by_year, by_author, by_publisher, by_tag, rent_book, history,
+    my_history, reserved_books, reserve_book, remove_reservation,
+    update_user_list, view_book_details, return_book,
+)
+
+from hacklab.biblioteka.views import BookListView
 
 
 app_name = 'biblioteka'
 
 
 urlpatterns = [
-        path('', index, name='index'),
+        # New views
+        path('', BookListView.as_view(), name='index'),
+
+        # Old views
+        # path('', index, name='index'),
         path('results/', index, name='results'),
         path('year/godina<int:number>)/', by_year, name='by_year'),
         path('author/a_id<int:number>/', by_author, name='by_author'),
